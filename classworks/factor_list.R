@@ -4,7 +4,7 @@ number_levels <- c(1,2,3,4,5,6,7,8,9,10,11)
 y1 <- factor(x1,levels = number_levels)
 x1
 y1
-
+ 
 #sorting
 
 sort(y1)
