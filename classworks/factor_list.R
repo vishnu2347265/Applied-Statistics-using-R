@@ -69,3 +69,15 @@ c=as.ordered(a)
 c
 is.ordered(c)
 
+#releveling a factor
+
+sizes <- factor(c("small","medium","large"))
+sizes
+
+#giving highest priority to medium
+sizes <- relevel(sizes,"medium")
+sizes
+#reversing the order
+sizes <- factor(sizes,levels = rev(levels(sizes)))
+sizes
+
