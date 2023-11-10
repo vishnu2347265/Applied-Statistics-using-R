@@ -68,6 +68,3 @@ str(organization);organization
 
 print("Department Employees List:")
 print(department_employees)
-
-
-
