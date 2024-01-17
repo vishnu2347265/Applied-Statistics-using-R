@@ -104,26 +104,12 @@ data$exercise_frequency <- as.numeric(as.character(data$exercise_frequency))
 data$age_group <- cut(data$X1..Age, breaks = c(15, 25, 30, 35), labels = c("15-25", "26-30", "31-35"))
 
 data_no_missing <- na.omit(data)
-length(data$age_group)
-length(data$exercise_frequency)
 
 anova_result <- aov(exercise_frequency ~ age_group, data = data_no_missing)
-length(anova_result)
 
 cat("One-Way ANOVA Results:\n")
 print(summary(anova_result))
 
-# Check if there is a p-value for the overall F-test
-if (!is.null(summary(anova_result)$`Pr(>F)`[1])) {
-
-    if (summary(anova_result)$`Pr(>F)`[1] < 0.05) {
-    cat("Reject the null hypothesis. There is significant evidence that at least one age group has a different average frequency of engaging in physical exercise per week.\n")
-  } else {
-    cat("Fail to reject the null hypothesis. There is not enough evidence to suggest a significant difference in the average frequency of engaging in physical exercise per week across all age groups.\n")
-  }
-} else {
-  cat("Unable to perform the ANOVA test due to insufficient variability in the data.\n")
-}
 #Conclusion:
 
 #The One-Way ANOVA results indicate that there is not enough evidence to reject the null hypothesis (H0), suggesting that the average frequency of engaging in physical exercise per week is similar across all age groups (15-25, 26-30, 31-35). The p-value obtained from the analysis is 0.595, which is greater than the common significance level of 0.05. Therefore, we fail to find significant differences in exercise frequency among different age groups.
@@ -155,11 +141,6 @@ two_way_anova_result <- aov(exercise_frequency ~ age_group * gender, data = data
 cat("Two-Way ANOVA Results:\n")
 print(summary(two_way_anova_result))
 
-if (!is.null(summary(two_way_anova_result)$`Pr(>F)`[3]) && summary(two_way_anova_result)$`Pr(>F)`[3] < 0.05) {
-  cat("Reject the null hypothesis. There is evidence of an interaction between age group and gender, indicating that their combined effect is not equal to the sum of their individual effects, or at least one of the variables has a significant impact.\n")
-} else {
-  cat("Fail to reject the null hypothesis. There is not enough evidence to suggest an interaction between age group and gender on the average frequency of engaging in physical exercise per week.\n")
-}
 # Two-Way ANOVA Results:
 
 #                   Df Sum Sq Mean Sq F value  Pr(>F)   
@@ -168,7 +149,7 @@ if (!is.null(summary(two_way_anova_result)$`Pr(>F)`[3]) && summary(two_way_anova
 #age_group:gender   2    2.7   1.339   0.438 0.64623   
 #Residuals        153  468.0   3.059                   
 #---
-#Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#Signif. codes:  0 '' 0.001 '' 0.01 '' 0.05 '.' 0.1 ' ' 1
 #2 observations deleted due to missingness
 # Conclusion:
 #A Two-Way ANOVA was conducted to explore the interaction between age group and gender on the average frequency of engaging in physical exercise per week. The results indicate that age group and gender both have a significant main effect on exercise frequency. However, the interaction between age group and gender does not show a significant effect.
@@ -285,16 +266,7 @@ cat("One-Way ANOVA Results:\n")
 print(summary(anova_result))
 
 # Check if there is a p-value for the overall F-test
-if (!is.null(summary(anova_result)$`Pr(>F)`[1])) {
-  # Check if the p-value is less than the significance level (commonly 0.05)
-  if (summary(anova_result)$`Pr(>F)`[1] < 0.05) {
-    cat("Reject the null hypothesis. There is significant evidence that at least one group has a different average time spent on each exercise session.\n")
-  } else {
-    cat("Fail to reject the null hypothesis. There is not enough evidence to suggest a significant difference in average time spent on each exercise session across all groups.\n")
-  }
-} else {
-  cat("Unable to perform the ANOVA test due to insufficient variability in the data.\n")
-}
+
 
 #Conclusion:
 #Fail to reject the null hypothesis (p-value = 0.397). There is no significant evidence to suggest a difference in the average time spent on each exercise session across employed and unemployed individuals.
@@ -311,23 +283,29 @@ if (!is.null(summary(anova_result)$`Pr(>F)`[1])) {
 #H1:There is an interaction between employment status and gender, indicating that their combined effect is not equal to the sum of their individual effects, or at least one of the variables has a significant impact.
 
 # Create a two-way ANOVA model
-anova_model <- aov(X5..On.average..how.many.minutes.do.you.spend.on.each.exercise.session... ~ X3..Occupation + X2..Gender, data = data)
+# Clean up variable names
+data$ExerciseTime <- as.numeric(data$X5..On.average..how.many.minutes.do.you.spend.on.each.exercise.session...)
+
+# Check and handle missing values
+data <- data[complete.cases(data), ]
+
+# Check and handle infinite or NaN values
+if (any(!is.finite(data$ExerciseTime))) {
+  stop("Error: Infinite or NaN values found in the dependent variable.")
+}
+
+# Check data type
+str(data$ExerciseTime)
+
+# Create a two-way ANOVA model
+anova_model <- aov(data$ExerciseTime ~ data$X3..Occupation + data$X2..Gender, data = data)
 
 # Display the results
 cat("Two-Way ANOVA Results:\n")
 print(summary(anova_model))
 
 # Check if there is a p-value for the interaction term
-if (!is.null(summary(anova_model)$`Pr(>F)`[3])) {
-  # Check if the p-value is less than the significance level (commonly 0.05)
-  if (summary(anova_model)$`Pr(>F)`[3] < 0.05) {
-    cat("Reject the null hypothesis. There is evidence of interaction between employment status and gender, indicating a combined effect.\n")
-  } else {
-    cat("Fail to reject the null hypothesis. There is not enough evidence to suggest an interaction between employment status and gender in influencing average exercise session time.\n")
-  }
-} else {
-  cat("Unable to perform the two-way ANOVA test due to insufficient variability in the data.\n")
-}
+
 
 #Conclusion and Inference:
 
@@ -339,3 +317,26 @@ if (!is.null(summary(anova_model)$`Pr(>F)`[3])) {
 
 #Inference: 
 #Occupation does not significantly influence exercise time. Gender has a significant effect on exercise time. Further refinement of data is necessary to comprehensively explore interaction effects.
+
+
+
+
+# Assuming you have a data frame named 'data' with columns 'AgeGroup' and 'exercise_frequency'
+# 'AgeGroup' is a categorical variable (15-25, 26-30, 31-35), and 'exercise_frequency' is the numeric variable of interest
+
+# Fit Simple Linear Regression
+model <- lm(data$X4..How.often.do.you.engage.in.physical.exercise.per.week.~ data$X1..Age, data = data)
+
+# Print the summary of the regression model
+summary(model)
+plot(model)
+
+# Assuming you have a data frame named 'df' with columns 'EmploymentStatus' and 'TimeSpentPerSession'
+# 'EmploymentStatus' is a categorical variable (Employed, Unemployed), and 'TimeSpentPerSession' is the numeric variable of interest
+
+# Fit Simple Linear Regression
+model <- lm(data$X5..On.average..how.many.minutes.do.you.spend.on.each.exercise.session... ~ data$X3..Occupation, data = data)
+
+# Print the summary of the regression model
+summary(model)
+plot(model)
